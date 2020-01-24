@@ -77,8 +77,8 @@ export default function Home() {
     const [chequingHistory, setChequingHistory] = useState(null);
     const [loading, setLoading] = useState(true)
     const [open, setOpen] = React.useState(false);
-    const [submitType, setSubmitType] = React.useState("Withdrawl");
-    const [submitAcct, setSubmitAcct] = React.useState("debit");
+    const [submitType, setSubmitType] = React.useState("D");
+    const [submitAcct, setSubmitAcct] = React.useState("CHEQUING");
     const [submitAmount, setSubmitAmount] = React.useState("00.00");
     const [submitDescription, setSubmitDescription] = React.useState("")
 
@@ -140,6 +140,40 @@ export default function Home() {
     }
 
     function submitTransaction() {
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = today.getFullYear();
+        today = yyyy + '-' + mm + '-' + dd;
+
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        
+        var raw = JSON.stringify({
+            "user": {name},
+            "account": {submitAcct},
+            "Date": today,
+            "Type": {submitType},
+            "Amount": {submitAmount},
+            "Title": {submitDescription}
+        })
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        }
+
+        fetch("http://localhost:5000/newtransaction", requestOptions)
+        .then((response) => {
+            response.text().then((data)=> {
+                console.log(data)
+            });
+        }).catch((error) => {
+            console.log(error)
+        }) 
+        handleClose();
 
     }
 
@@ -197,8 +231,8 @@ export default function Home() {
                             value={submitType}
                             onChange={handleTypeChange}
                             >
-                            <MenuItem value="Withdrawl">Withdrawal</MenuItem>
-                            <MenuItem value="Deposit">Deposit</MenuItem>
+                            <MenuItem value="D">Withdrawal</MenuItem>
+                            <MenuItem value="C">Deposit</MenuItem>
                     </Select>
                     </FormControl>
                     <FormControl>
@@ -209,8 +243,8 @@ export default function Home() {
                             value={submitAcct}
                             onChange={handleAcctChange}
                             >
-                            <MenuItem value="chequing">Chequing</MenuItem>
-                            <MenuItem value="savings">Savings</MenuItem>
+                            <MenuItem value="CHEQUING">Chequing</MenuItem>
+                            <MenuItem value="SAVINGS">Savings</MenuItem>
                     </Select>
                     </FormControl>
                     <FormControl>
