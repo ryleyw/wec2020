@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function AccountSwitch(props) {
     const classes = useStyles();
-    const [accountType, setAccountType] = useState(0);
+    const [accountType, setAccountType] = useState(true);
 
     return (
         <Grid alignItems="center" justify="center" >
