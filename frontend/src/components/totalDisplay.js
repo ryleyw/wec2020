@@ -12,7 +12,11 @@ const useStyles = makeStyles(theme => ({
       width: theme.spacing(16),
       height: theme.spacing(16),
     },
-    border: 'solid black'
+    border: 'solid black',
+    borderWidth: '1px',
+    borderRadius: '5px',
+    fontSize: '64pt',
+    
   },
   paperStyle:{
       width: '50%'
@@ -24,8 +28,13 @@ export default function Total(props) {
   const [total, setTotal] = useState(props.amount); 
 
   return (
-    <div className={classes.root}>
-      {props.amount}
+      <div>
+
+      
+        <div>Account Total</div>
+        <div className={classes.root}>
+        {props.amount}
+        </div>
     </div>
   );
 }

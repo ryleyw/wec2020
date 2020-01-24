@@ -48,6 +48,9 @@ export default function History(props) {
         return {date, type, amount, title};
     }
     return (
+        <div>
+            Transaction History
+        
         <TableContainer component={Paper}>
         <Table className={classes.table} size="small" aria-label="a dense table">
           <TableHead>
@@ -72,5 +75,6 @@ export default function History(props) {
           </TableBody>
         </Table>
       </TableContainer>
+      </div>
   );
 }
