@@ -4,7 +4,8 @@ import csv
 import json
 
 app = Flask(__name__)
-CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+cors = CORS(app, resources={r"/getuserjson": {"origins": "http://localhost:3000"}})
 
 # @app.route('/user/<username>')
 # def gethistory(username):
@@ -16,7 +17,7 @@ CORS(app)
 #     return "404: User not found!"
 
 
-@app.route('/getuserjson', methods=["POST"])
+@app.route('/getuserjson', methods=["GET", "POST"])
 def getuserjson():
     user = request.json['user']
     if user.lower() == "karen":
