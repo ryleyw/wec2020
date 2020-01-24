@@ -78,6 +78,7 @@ def newtransaction():
         true_title = attempted_transaction["Title"]
         attempted_transaction["Title"] = f"To Bobby: {true_title}"
 
+        # Doesn't check Karen's account before sending money to Bobby.
         attempted_transaction["Type"] = "C"
         return_msg = handle_transaction("bobby", account, attempted_transaction)
 
