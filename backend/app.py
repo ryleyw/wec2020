@@ -21,29 +21,31 @@ cors = CORS(app, resources={r"/getuserjson": {"origins": "http://localhost:3000"
 @app.route('/getuserjson', methods=["POST"])
 def getuserjson():
     user = request.json['user']
-    if user.lower() == "karen":
-        chequing_data = read_json("db/karen/CHEQUING.json")
-        savings_data = read_json("db/karen/SAVINGS.json")
 
-        chequing_total = get_balance(chequing_data)
-        savings_total = get_balance(savings_data)
+    if user != "karen" and user != "bobby":
+        return "User not found"
 
-        totalJSON = {
-            "username": user,
-            "chequing": {
-                "curr_total": chequing_total,
-                "history": chequing_data
-            },
-            "savings": {
-                "curr_total": savings_total,
-                "history": savings_data
-            }
+    chequing_data = read_json(f"db/{user}/CHEQUING.json")
+    chequing_total = get_balance(chequing_data)
+
+    total_json = {}
+    total_json["username"] = user
+    total_json["chequing"] = {
+            "curr_total": chequing_total,
+            "history": chequing_data
         }
 
-        #print(json.dumps(savings_data, indent=4))
-        return json.dumps(totalJSON)
+    if user != "bobby":
+        savings_data = read_json(f"db/{user}/SAVINGS.json")
+        savings_total = get_balance(savings_data)
+        total_json["savings"] = {
+            "curr_total": savings_total,
+            "history": savings_data
+        }
 
-    return "404: User not found!"
+
+    #print(json.dumps(savings_data, indent=4))
+    return json.dumps(total_json)
 
 
 @app.route('/newtransaction', methods=['POST'])
@@ -74,22 +76,23 @@ def new_transaction():
 
 
     if account != "SAVINGS" and account != "CHEQUING":
-        return "Account doesn't exist"
+        return "Invalid account type"
 
     try:
         filename = f"db/{user}/{account}.json"
         transaction_history = read_json(filename)
     except FileNotFoundError:
-        return "Database Error: User doesn't exist"
+        return "Database Error: User or account doesn't exist"
 
     if (new_transaction["Type"] == "D" or new_transaction["Type"] == "Withdrawl") and float(new_transaction["Amount"]) >= get_balance(transaction_history):
         return "You don't have enough money to withdraw"
 
-
-    # if user.lower() == "bobby":
-
-
     if user.lower() == "karen":
+        transaction_history.append(new_transaction)
+
+    if user.lower() == "bobby":
+        if account == "SAVINGS":
+            return f"{user} doesn't have a {account} account!"
         transaction_history.append(new_transaction)
 
     write_json(transaction_history, filename)
@@ -147,6 +150,7 @@ def main():
 
     csv_to_json(f"db/karen/SAVINGS.csv")
     csv_to_json(f"db/karen/CHEQUING.csv")
+    csv_to_json(f"db/bobby/CHEQUING.csv")
 
     app.run(host="0.0.0.0")
 
