@@ -40,6 +40,11 @@ export default function History(props) {
     }
 
     function createData(date, type, amount, title) {
+        if(type=="Withdrawl") {
+            type = "D"
+        } else {
+            type = "C"
+        }
         return {date, type, amount, title};
     }
     return (
