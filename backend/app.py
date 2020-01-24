@@ -74,9 +74,31 @@ def newtransaction():
         "transaction": attempted_transaction
     }
 
-    print(attempted_transaction)
-    # Sanitize!
 
+    if attempted_transaction["Type"] == "T":
+        true_title = attempted_transaction["Title"]
+        attempted_transaction["Title"] = f"To Bobby: {true_title}"
+
+
+        attempted_transaction["Type"] = "C"
+        return_msg = handle_transaction("bobby", account, attempted_transaction)
+
+        attempted_transaction["Type"] = "D"
+        return_msg += handle_transaction("karen", account, attempted_transaction)
+        return return_msg
+
+    else:
+        return handle_transaction(user, account, attempted_transaction)
+
+    # return "Transaction complete"
+
+
+@app.route('/')
+def index_page():
+    return '<h1> Welcome to the Backend!</h1>'
+
+
+def handle_transaction(user, account, attempted_transaction):
     try:
         if float(attempted_transaction["Amount"]) < 0:
             return "ERROR: Amount must be non-negative"
@@ -109,24 +131,20 @@ def newtransaction():
         transaction_history.append(attempted_transaction)
 
     write_json(transaction_history, filename)
-
-    return str(read_json(filename))
-
-
-@app.route('/')
-def index_page():
-    return '<h1> Welcome to the Backend!</h1>'
+    return "Successful transaction"
 
 
 def manage_spending(attempted_transaction, transaction_history):
     spent_today = 0
     for transaction in transaction_history:
-        if transaction["Date"] == attempted_transaction["Date"]:
+        if transaction["Date"] == attempted_transaction["Date"] and (transaction["Type"] == "D" or
+                transaction["Type"] == "Withdrawl"):
             if "Locked" in transaction:
                 return False
             spent_today += float(transaction["Amount"])
 
-    if float(attempted_transaction["Amount"]) + spent_today >= 100:
+    if float(attempted_transaction["Amount"]) + spent_today >= 100 and (transaction["Type"] == "D" or
+                transaction["Type"] == "Withdrawl"):
         attempted_transaction["Title"] = f"Locked: tried to spend ${attempted_transaction['Amount']}"
         attempted_transaction["Amount"] = "0"
         attempted_transaction["Locked"] = True
@@ -189,7 +207,7 @@ def get_balance(dict):
         elif transaction["Type"] == "D" or transaction["Type"] == "Withdrawl":
             total -= float(transaction["Amount"])
 
-    return total
+    return round(total, 2)
 
 
 def main():
