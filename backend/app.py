@@ -23,7 +23,7 @@ def getuserjson():
     user = request.json['user']
 
     if user != "karen" and user != "bobby":
-        return "User not found"
+        return "ERROR: User not found"
 
     chequing_data = read_json(f"db/{user}/CHEQUING.json")
     chequing_total = get_balance(chequing_data)
@@ -70,22 +70,22 @@ def new_transaction():
 
     try:
         if float(attempted_transaction["Amount"]) < 0:
-            return "Amount must be non-negative"
+            return "ERROR: Amount must be non-negative"
     except ValueError:
-        return "Amount is not a number"
+        return "ERROR: Amount is not a number"
 
     if account != "SAVINGS" and account != "CHEQUING":
-        return "Invalid account type"
+        return "ERROR: Invalid account type"
 
     try:
         filename = f"db/{user}/{account}.json"
         transaction_history = read_json(filename)
     except FileNotFoundError:
-        return "Database Error: User or account doesn't exist"
+        return "ERROR: User or account doesn't exist"
 
     if (attempted_transaction["Type"] == "D" or attempted_transaction["Type"] == "Withdrawl") \
             and float(attempted_transaction["Amount"]) >= get_balance(transaction_history):
-        return "You don't have enough money to withdraw"
+        return "ERROR: You don't have enough money to withdraw"
 
     # Hardcode the users, no databases here, folks
     if user.lower() == "karen":
@@ -93,10 +93,10 @@ def new_transaction():
 
     if user.lower() == "bobby":
         if account == "SAVINGS":
-            return f"{user} doesn't have a {account} account!"
+            return f"ERROR: {user} doesn't have a {account} account!"
         attempted_transaction = manage_spending(attempted_transaction, transaction_history)
         if attempted_transaction == False:
-            return "Bobby's account is locked"
+            return f"ERROR: {user}'s account is locked"
         transaction_history.append(attempted_transaction)
 
     write_json(transaction_history, filename)
