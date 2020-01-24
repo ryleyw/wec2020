@@ -2,7 +2,6 @@ from flask import Flask, request
 from flask_cors import CORS
 import csv
 import json
-from datetime import datetime
 
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -125,7 +124,7 @@ def manage_spending(attempted_transaction, transaction_history):
     return attempted_transaction
 
 
-def csv_to_json(filename):
+def transactions_to_json(filename):
     csv_file = open(filename, "r")
     json_file = open(filename.split(".")[0]+".json", "w")
 
@@ -137,6 +136,24 @@ def csv_to_json(filename):
 
     for transaction in csv_data:
         json_list.append(transaction)
+
+    json.dump(json_list, json_file)
+    #return json_list
+
+
+def investments_to_json(filename):
+    csv_file = open(filename, "r")
+    json_file = open(filename.split(".")[0]+".json", "w")
+
+    fields = ("Date", "Price Today", "Price Yesterday", "Price in 7 Days", "Price 2 Days Ago",
+              "Price in 2 Days", "Price 30 Days Ago")
+    csv_data = csv.DictReader(csv_file, fields)
+    next(csv_data)
+
+    json_list = []
+
+    for investment in csv_data:
+        json_list.append(investment)
 
     json.dump(json_list, json_file)
     #return json_list
@@ -167,9 +184,9 @@ def get_balance(dict):
 
 def main():
 
-    csv_to_json(f"db/karen/SAVINGS.csv")
-    csv_to_json(f"db/karen/CHEQUING.csv")
-    csv_to_json(f"db/bobby/CHEQUING.csv")
+    transactions_to_json(f"db/karen/SAVINGS.csv")
+    transactions_to_json(f"db/karen/CHEQUING.csv")
+    transactions_to_json(f"db/bobby/CHEQUING.csv")
 
     #app.run()
     app.run(host="0.0.0.0")
