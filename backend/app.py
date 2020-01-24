@@ -148,7 +148,7 @@ def main():
     csv_to_json(f"db/karen/SAVINGS.csv")
     csv_to_json(f"db/karen/CHEQUING.csv")
 
-    app.run(host="0.0.0.0")
+    app.run()
 
 
 if __name__ == '__main__':
