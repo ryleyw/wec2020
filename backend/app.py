@@ -74,12 +74,13 @@ def newtransaction():
         "transaction": attempted_transaction
     }
 
+    print(attempted_transaction)
     # Sanitize!
 
     try:
         if float(attempted_transaction["Amount"]) < 0:
             return "ERROR: Amount must be non-negative"
-    except ValueError:
+    except:
         return "ERROR: Amount is not a number"
 
     if account != "SAVINGS" and account != "CHEQUING":
