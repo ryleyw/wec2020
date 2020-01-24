@@ -81,17 +81,18 @@ export default function Home() {
     const [submitAcct, setSubmitAcct] = React.useState("CHEQUING");
     const [submitAmount, setSubmitAmount] = React.useState("00.00");
     const [submitDescription, setSubmitDescription] = React.useState("")
+    const [submitPing, setSubmitPing] = React.useState(true);
 
     useEffect(() => {
         console.log("Component mounted.");
         getUserData();
-    }, [name, loading]);
+    }, [name, loading, submitPing]);
 
     function getUserData() {
 
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json")
-        var raw = JSON.stringify({"user": "karen"});
+        var raw = JSON.stringify({"user": name});
         var requestOptions = {  
             method: 'POST',
             headers: myHeaders,
@@ -104,10 +105,22 @@ export default function Home() {
             response.text().then((data)=> {
                 console.log(data)
                 var jsonData = JSON.parse(data);
-                setSavingTotal(jsonData.savings.curr_total)
-                setChequingTotal(jsonData.chequing.curr_total)
-                setSavingHistory(jsonData.savings.history)
-                setChequingHistory(jsonData.chequing.history)
+                if(name != "bobby" && jsonData.savings != undefined) {
+                    setSavingTotal(jsonData.savings.curr_total)
+                } else {
+                    setSavingTotal("This account is not eligible");
+                }
+                if(jsonData.chequing.curr_total != undefined) {
+                    setChequingTotal(jsonData.chequing.curr_total)
+                }
+                if(jsonData.savings != undefined && name != "bobby") {
+                    setSavingHistory(jsonData.savings.history)
+                } else {
+                    setSavingHistory(null);
+                }
+                if(jsonData.chequing.history != undefined) {
+                    setChequingHistory(jsonData.chequing.history)
+                }
                 setLoading(false);
             });
         }).catch((error) => {
@@ -139,6 +152,15 @@ export default function Home() {
         setSubmitDescription(event.target.value);
     }
 
+    function changeKaren() {
+        setName("karen")
+    }
+
+    function changeBobby() {
+        setName("bobby")
+    }
+
+    
     function submitTransaction() {
         var today = new Date();
         var dd = String(today.getDate()).padStart(2, '0');
@@ -150,12 +172,12 @@ export default function Home() {
         myHeaders.append("Content-Type", "application/json");
         
         var raw = JSON.stringify({
-            "user": {name},
-            "account": {submitAcct},
+            "user": name,
+            "account": submitAcct,
             "Date": today,
-            "Type": {submitType},
-            "Amount": {submitAmount},
-            "Title": {submitDescription}
+            "Type": submitType,
+            "Amount": submitAmount,
+            "Title": submitDescription
         })
 
         var requestOptions = {
@@ -168,7 +190,11 @@ export default function Home() {
         fetch("http://localhost:5000/newtransaction", requestOptions)
         .then((response) => {
             response.text().then((data)=> {
-                console.log(data)
+                if(submitPing==true) {
+                    setSubmitPing(false)
+                } else {
+                    setSubmitPing(true)
+                }
             });
         }).catch((error) => {
             console.log(error)
@@ -176,11 +202,12 @@ export default function Home() {
         handleClose();
 
     }
+    const isKaren = (name=="karen")
 
     return(
         <div>
             <div>
-                <AppBar name = {name}/>
+                <AppBar name = {name} changeB={changeBobby} changeK={changeKaren}/>
                 <div>
                     <AccountSwitch savingsTotal={savingsTotal} chequingTotal={chequingTotal} savingsList={savingsHistory} chequingList={chequingHistory} loading={loading}/>
                 </div> 
@@ -233,6 +260,10 @@ export default function Home() {
                             >
                             <MenuItem value="D">Withdrawal</MenuItem>
                             <MenuItem value="C">Deposit</MenuItem>
+                            <MenuItem value="T">To Bobby</MenuItem>
+                        }  
+                    }
+                            
                     </Select>
                     </FormControl>
                     <FormControl>
