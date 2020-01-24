@@ -5,8 +5,16 @@ import json
 
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
-cors = CORS(app, resources={r"/getuserjson": {"origins": "http://localhost:3000"},
-                            r"/newtransaction": {"origins": "http://localhost:3000"}})
+
+cors = CORS(app, resources={
+    r"/getuserjson": {
+        "origins": "http://localhost:3000"
+    },
+    r"/newtransaction": {
+        "origins": "http://localhost:3000"}
+})
+
+
 
 # @app.route('/user/<username>')
 # def gethistory(username):
@@ -49,7 +57,7 @@ def getuserjson():
 
 
 @app.route('/newtransaction', methods=['POST'])
-def new_transaction():
+def newtransaction():
 
     user = request.json['user']
     account = request.json['account']
