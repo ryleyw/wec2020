@@ -7,11 +7,14 @@ app = Flask(__name__)
 
 @app.route('/user/<username>')
 def gethistory(username):
-    return username
+    if username.lower() == "karen":
+        return json.dumps(csv_to_json("db/LEVEL_1/CHEQUING.csv"))
+
+    return "404: User not found!"
 
 @app.route('/')
 def index_page():
-    return "Hello!"
+    return '<a href="/user/karen"> Karen\'s JSON</a>'
 
 def csv_to_json(filename):
     csv_file = open(filename, "r")
