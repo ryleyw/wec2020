@@ -2,7 +2,7 @@ from flask import Flask, request
 from flask_cors import CORS
 import csv
 import json
-import datetime
+from datetime import datetime
 
 app = Flask(__name__)
 app.config["CORS_HEADERS"] = "Content-Type"
@@ -54,8 +54,8 @@ def new_transaction():
     user = request.json['user']
     account = request.json['account']
 
-    new_transaction = {
-        #TODO is date present or generated?
+    attempted_transaction = {
+        # We'll let the client set the date for testing purposes
         "Date": request.json['Date'],
         "Type": request.json['Type'],
         "Amount": request.json['Amount'],
@@ -63,17 +63,16 @@ def new_transaction():
     }
     json_data = {
         "user": user,
-        "transaction": new_transaction
+        "transaction": attempted_transaction
     }
 
     # Sanitize!
 
     try:
-        if float(new_transaction["Amount"]) < 0:
+        if float(attempted_transaction["Amount"]) < 0:
             return "Amount must be non-negative"
     except ValueError:
         return "Amount is not a number"
-
 
     if account != "SAVINGS" and account != "CHEQUING":
         return "Invalid account type"
@@ -84,16 +83,21 @@ def new_transaction():
     except FileNotFoundError:
         return "Database Error: User or account doesn't exist"
 
-    if (new_transaction["Type"] == "D" or new_transaction["Type"] == "Withdrawl") and float(new_transaction["Amount"]) >= get_balance(transaction_history):
+    if (attempted_transaction["Type"] == "D" or attempted_transaction["Type"] == "Withdrawl") \
+            and float(attempted_transaction["Amount"]) >= get_balance(transaction_history):
         return "You don't have enough money to withdraw"
 
+    # Hardcode the users, no databases here, folks
     if user.lower() == "karen":
-        transaction_history.append(new_transaction)
+        transaction_history.append(attempted_transaction)
 
     if user.lower() == "bobby":
         if account == "SAVINGS":
             return f"{user} doesn't have a {account} account!"
-        transaction_history.append(new_transaction)
+        attempted_transaction = manage_spending(attempted_transaction, transaction_history)
+        if attempted_transaction == False:
+            return "Bobby's account is locked"
+        transaction_history.append(attempted_transaction)
 
     write_json(transaction_history, filename)
 
@@ -102,8 +106,23 @@ def new_transaction():
 
 @app.route('/')
 def index_page():
-    return '<a href="/user/karen?db=CHEQUING"> Karen\'s JSON</a>'
+    return '<h1> Welcome to the Backend!</h1>'
 
+
+def manage_spending(attempted_transaction, transaction_history):
+    spent_today = 0
+    for transaction in transaction_history:
+        if transaction["Date"] == attempted_transaction["Date"]:
+            if "Locked" in transaction:
+                return False
+            spent_today += float(transaction["Amount"])
+
+    if float(attempted_transaction["Amount"]) + spent_today >= 100:
+        attempted_transaction["Title"] = f"Locked: tried to spend ${attempted_transaction['Amount']}"
+        attempted_transaction["Amount"] = "0"
+        attempted_transaction["Locked"] = True
+
+    return attempted_transaction
 
 
 def csv_to_json(filename):
@@ -152,6 +171,7 @@ def main():
     csv_to_json(f"db/karen/CHEQUING.csv")
     csv_to_json(f"db/bobby/CHEQUING.csv")
 
+    #app.run()
     app.run(host="0.0.0.0")
 
 
