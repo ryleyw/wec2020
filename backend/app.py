@@ -5,6 +5,7 @@ import json
 
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
+
 cors = CORS(app, resources={
     r"/getuserjson": {
         "origins": "http://localhost:3000"
@@ -12,6 +13,7 @@ cors = CORS(app, resources={
     r"/newtransaction": {
         "origins": "http://localhost:3000"}
 })
+
 
 
 # @app.route('/user/<username>')
@@ -212,7 +214,7 @@ def main():
     transactions_to_json(f"db/karen/CHEQUING.csv")
     transactions_to_json(f"db/bobby/CHEQUING.csv")
 
-    app.run(host="0.0.0.0")
+    app.run()
 
 
 
