@@ -260,7 +260,9 @@ export default function Home() {
                             >
                             <MenuItem value="D">Withdrawal</MenuItem>
                             <MenuItem value="C">Deposit</MenuItem>
-                            <MenuItem value="T">To Bobby</MenuItem>
+                            {isKaren ? (<MenuItem value="T">To Bobby</MenuItem>)
+                            : (null)}
+
                         }  
                     }
                             
