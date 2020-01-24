@@ -1,22 +1,34 @@
 import React, {useState, useEffect} from 'react';
+import {makeStyles} from '@material-ui/core'
 import AppBar from '../components/appBar';
+import Button from '@material-ui/core/Button';
 import AccountSwitch from '../components/accountSwitch';
+import AddIcon from '@material-ui/icons/Add';
+
+const useStyles = makeStyles(theme => ({
+    button: {
+      margin: theme.spacing(1),
+      position: 'fixed',
+      bottom: '5px',
+      right: '5px'
+    },
+}));
 
 export default function Home() {
+    
+    const classes = useStyles();
+
     const [name, setName] = useState("karen");
     const [savingsTotal, setSavingTotal] = useState(0);
     const [chequingTotal, setChequingTotal] = useState(0);
     const [savingsHistory, setSavingHistory] = useState(null);
     const [chequingHistory, setChequingHistory] = useState(null);
-    const [initial, setInitial] = useState(true);
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         console.log("Component mounted.");
-        if({initial}) {
-            getUserData();
-        }
-        setInitial(false);
-    }, [name]);
+        getUserData();
+    }, [name, loading]);
 
     function getUserData() {
 
@@ -39,6 +51,7 @@ export default function Home() {
                 setChequingTotal(jsonData.chequing.curr_total)
                 setSavingHistory(jsonData.savings.history)
                 setChequingHistory(jsonData.chequing.history)
+                setLoading(false);
             });
         }).catch((error) => {
             console.log(error)
@@ -47,9 +60,24 @@ export default function Home() {
 
     return(
         <div>
-            <AppBar name = {name}/>
-            <AccountSwitch savingsTotal={savingsTotal} chequingTotal={chequingTotal} savingsList={savingsHistory} chequingList={chequingHistory}/>
-        </div>      
+            <div>
+                <AppBar name = {name}/>
+                <div>
+                    <AccountSwitch savingsTotal={savingsTotal} chequingTotal={chequingTotal} savingsList={savingsHistory} chequingList={chequingHistory} loading={loading}/>
+                </div> 
+            </div>   
+            <div>
+            <Button
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            startIcon={<AddIcon />}
+            >
+                Add Transaction
+            </Button>
+      
+            </div> 
+        </div>
     )
 }
 

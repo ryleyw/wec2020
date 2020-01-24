@@ -21,11 +21,11 @@ const useStyles = makeStyles(theme => ({
 
 export default function Total(props) {
   const classes = useStyles();
-  const [total, setTotal] = useState("00.00");
- 
+  const [total, setTotal] = useState(props.amount); 
+
   return (
     <div className={classes.root}>
-      {total}
+      {props.amount}
     </div>
   );
 }

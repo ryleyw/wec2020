@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 
 app = Flask(__name__)
-app.config["CORS_HEADERS"] = "Content-Type"
+app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources={r"/getuserjson": {"origins": "http://localhost:3000"}})
 
 # @app.route('/user/<username>')
@@ -18,7 +18,7 @@ cors = CORS(app, resources={r"/getuserjson": {"origins": "http://localhost:3000"
 #     return "404: User not found!"
 
 
-@app.route('/getuserjson', methods=["POST"])
+@app.route('/getuserjson', methods=["GET", "POST"])
 def getuserjson():
     user = request.json['user']
 
