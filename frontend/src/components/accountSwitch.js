@@ -21,23 +21,40 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+
 export default function AccountSwitch(props) {
     const classes = useStyles();
     const [accountType, setAccountType] = useState(true);
+    const [loading, setLoading] = useState(props.loading);
+
+    function switchChequing() {
+        setAccountType(true)
+    }
+
+    function switchSavings() {
+        setAccountType(false)
+    }
 
     return (
         <Grid alignItems="center" justify="center" >
-       
             <Container justify='center' className={classes.root}>
                 <ButtonGroup color="primary" aria-label="outlined primary button group">
-                <Button className={classes.switchButton}>Chequing</Button>
-                <Button className={classes.switchButton}>Savings</Button>
+                    <Button className={classes.switchButton} onClick={switchChequing}>Chequing</Button>
+                    <Button className={classes.switchButton} onClick={switchSavings}>Savings</Button>
                 </ButtonGroup>
             </Container>
+            
+            {accountType ? (
             <Container justify='center'>
-                <Total />
-                <History />
+                <Total amount={props.chequingTotal}/>
+                <History history={props.chequingList}/>
             </Container>
+            ) : (
+            <Container justify='center'>
+                <Total amount={props.savingsTotal}/>
+                <History history={props.savingsList}/>
+            </Container> 
+            )}
         </Grid>
 
     );
